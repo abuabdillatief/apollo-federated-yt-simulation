@@ -16,8 +16,24 @@ model User {
 }
 
 model Video {
-  id           Int @id @default(autoincrement())
-  duration     Int
+  id          Int @id @default(autoincrement())
+  duration    Int
   totalClick  Int
   totalPlayed Int
+}
+
+model ActionDetail {
+  id             Int      @id @default(autoincrement())
+  videoId        Int
+  action         Action
+  previousAction Action
+  createdAt      DateTime
+}
+
+enum Action {
+  Unset
+  Play
+  Pause
+  Skip
+  MovePage
 }
