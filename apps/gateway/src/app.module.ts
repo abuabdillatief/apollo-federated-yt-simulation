@@ -3,12 +3,14 @@ import { ApolloGatewayDriver, ApolloGatewayDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { AppService } from './app.service';
+import { authContext } from './auth.context';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloGatewayDriverConfig>({
       driver: ApolloGatewayDriver,
       server: {
+        context: authContext,
       },
       gateway: {
         supergraphSdl: new IntrospectAndCompose({
