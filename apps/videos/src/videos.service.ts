@@ -5,6 +5,7 @@ import { v4 as uuid } from 'uuid';
 import { CreateVideoInput } from './dto/create-video.input';
 import { UpdateVideoInput } from './dto/update-video.input';
 import { Video } from './entities/video.entity';
+import * as randomTitle from 'random-title'
 
 @Injectable()
 export class VideosService {
@@ -15,6 +16,7 @@ export class VideosService {
   create(input: CreateVideoInput): Promise<Video> {
     const video = this.videoRepository.create({
       id: uuid(),
+      title: randomTitle(),
       totalClick: input.totalClick,
       totalPlayed: input.totalClick,
       duration: input.duration
@@ -31,13 +33,13 @@ export class VideosService {
   }
 
   async update(id: string, { totalClick, totalPlayed }: UpdateVideoInput): Promise<Video> {
-    const video = await this.videoRepository.findOne({where:{id}})
+    const video = await this.videoRepository.findOne({ where: { id } })
     video.totalClick = totalClick
     video.totalPlayed = totalPlayed
     return this.videoRepository.save(video)
   }
 
   remove(id: string) {
-    return this.videoRepository.deleteOne({id:id})
+    return this.videoRepository.deleteOne({ id: id })
   }
 }
