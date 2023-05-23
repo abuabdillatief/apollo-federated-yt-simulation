@@ -1,0 +1,92 @@
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: ./apps/gateway/Dockerfile
+      target: development
+    command: npm run start:dev
+    depends_on:
+      - mongodb-primary
+      - mongodb-secondary
+      - mongodb-arbiter
+      - rabbitmq
+      - users
+      - videos
+    volumes:
+    - .:/usr/src/app
+    - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+  users:
+    build:
+      context: .
+      dockerfile: ./apps/users/Dockerfile
+      target: development
+    command: npm run start:dev users
+    env_file:
+    - ./apps/users/.env
+    depends_on:
+      - mongodb-primary
+      - mongodb-secondary
+      - mongodb-arbiter
+      - rabbitmq
+    volumes:
+    - .:/usr/src/app
+    - /usr/src/app/node_modules
+    ports:
+      - '3001:3001'
+
+  videos:
+    build:
+      context: .
+      dockerfile: ./apps/videos/Dockerfile
+      target: development
+    command: npm run start:dev videos
+    env_file:
+    - ./apps/videos/.env
+    depends_on:
+      - mongodb-primary
+      - mongodb-secondary
+      - mongodb-arbiter
+      - rabbitmq
+    volumes:
+    - .:/usr/src/app
+    - /usr/src/app/node_modules
+    ports:
+      - '3002:3002'
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - '5672:5672'
+
+  mongodb-primary:
+    image: mongo:4.4.14
+    container_name: mongodb-primary
+    command: ["--replSet", "my-replica-set", "--bind_ip_all", "--port", "27017"]
+    volumes:
+      - ./data/mongo-1:/data/db
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: test $$(echo "rs.initiate({_id:'my-replica-set',members:[{_id:0,host:\"mongodb-primary:27017\"},{_id:1,host:\"mongodb-secondary:27018\"},{_id:2,host:\"mongodb-arbiter:27019\"}]}).ok || rs.status().ok" | mongo --port 27017 --quiet) -eq 1
+      interval: 5s
+      start_period: 10s
+
+  mongodb-secondary:
+    image: mongo:4.4.14
+    container_name: mongodb-secondary
+    command: ["--replSet", "my-replica-set", "--bind_ip_all", "--port", "27018"]
+    volumes:
+      - ./data/mongo-2:/data/db
+    ports:
+      - 27018:27018
+
+  mongodb-arbiter:
+    image: mongo:4.4.14
+    container_name: mongodb-arbiter
+    command: ["--replSet", "my-replica-set", "--bind_ip_all", "--port", "27019"]
+    volumes:
+      - ./data/mongo-3:/data/db
+    ports:
+      - 27019:27019
