@@ -1,12 +1,13 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent, ResolveReference } from '@nestjs/graphql';
 import { VideosService } from './videos.service';
 import { Video } from './entities/video.entity';
 import { CreateVideoInput } from './dto/create-video.input';
 import { UpdateVideoInput } from './dto/update-video.input';
+import { User } from './entities/user.entity';
 
 @Resolver(() => Video)
 export class VideosResolver {
-  constructor(private readonly videosService: VideosService) {}
+  constructor(private readonly videosService: VideosService) { }
 
   @Mutation(() => Video)
   createVideo(@Args('createVideoInput') createVideoInput: CreateVideoInput) {
@@ -19,7 +20,7 @@ export class VideosResolver {
   }
 
   @Query(() => Video, { name: 'video' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  findOne(@Args('id') id: string) {
     return this.videosService.findOne(id);
   }
 
@@ -29,7 +30,12 @@ export class VideosResolver {
   }
 
   @Mutation(() => Video)
-  removeVideo(@Args('id', { type: () => Int }) id: number) {
+  removeVideo(@Args('id') id: string) {
     return this.videosService.remove(id);
+  }
+
+  @ResolveField(() => User)
+  user(@Parent() video:  Video): any {
+    return { __typename: 'User', id: 1 };
   }
 }

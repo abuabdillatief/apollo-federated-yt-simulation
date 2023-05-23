@@ -1,12 +1,15 @@
-import { Module } from '@nestjs/common';
-import { VideosService } from './videos.service';
-import { VideosResolver } from './videos.resolver';
-import { PrismaModule } from './prisma/prisma.module';
-import { GraphQLModule } from '@nestjs/graphql';
+import { RmqModule } from '@app/common/rmq/rmq.module';
 import {
-  ApolloFederationDriver,
-  ApolloFederationDriverConfig,
+    ApolloFederationDriver,
+    ApolloFederationDriverConfig,
 } from '@nestjs/apollo';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
+import * as Joi from 'joi';
+import { USER_SERVICE } from './constants/services';
+import { VideosResolver } from './videos.resolver';
+import { VideosService } from './videos.service';
 
 @Module({
   imports: [
@@ -16,7 +19,18 @@ import {
         federation: 2
       }
     }),
-    PrismaModule],
+    RmqModule.register({
+      name: USER_SERVICE
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        MONGODB_URI: Joi.string().required(),
+        PORT: Joi.number().required()
+      }),
+      envFilePath: './apps/videos/.env',
+    })
+  ],
   providers: [VideosResolver, VideosService],
 })
 export class VideosModule { }

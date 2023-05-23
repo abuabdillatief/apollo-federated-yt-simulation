@@ -4,5 +4,5 @@ import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
 @InputType()
 export class UpdateVideoInput extends PartialType(CreateVideoInput) {
   @Field(() => Int)
-  id: number;
+  id: string;
 }

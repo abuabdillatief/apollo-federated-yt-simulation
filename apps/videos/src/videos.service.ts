@@ -1,36 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import { CreateVideoInput } from './dto/create-video.input';
 import { UpdateVideoInput } from './dto/update-video.input';
-import { PrismaService } from './prisma/prisma.service';
-import { Video } from '@prisma/client';
 
 @Injectable()
 export class VideosService {
-  constructor(private prisma: PrismaService) { }
+  constructor() { }
 
   create(createVideoInput: CreateVideoInput) {
-    return this.prisma.video.create({
-      data: createVideoInput
-    })
+    // return this.prisma.video.create({
+    //   data: createVideoInput
+    // })
   }
 
-  findAll(): Promise<Video[]> {
-    return this.prisma.video.findMany()
+  findAll() {
+    // return this.prisma.video.findMany()
   }
 
-  findOne(id: number) {
-    return this.prisma.video.findUnique({ where: { id }, select: { duration: true } })
+  findOne(id: string)  {
+    // return this.prisma.video.findUnique({
+    //   where: { id }, select: {
+    //     id: true,
+    //     totalClick: true,
+    //     totalPlayed: true,
+    //     duration: true
+    //   }
+    // })
   }
 
-  update(id: number, { totalClick, totalPlayed }: UpdateVideoInput) {
-    return this.prisma.video.update({
-      where: { id }, data: {
-        totalClick, totalPlayed
-      }
-    })
+  update(id: string, { totalClick, totalPlayed }: UpdateVideoInput) {
+    // return this.prisma.video.update({
+    //   where: { id }, data: {
+    //     totalClick, totalPlayed
+    //   }
+    // })
   }
 
-  remove(id: number) {
-    return this.prisma.video.delete({ where: { id } })
+  remove(id: string) {
+    // return this.prisma.video.delete({ where: { id } })
   }
 }
