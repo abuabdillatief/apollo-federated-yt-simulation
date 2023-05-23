@@ -3,15 +3,14 @@ import { VideosService } from './videos.service';
 import { Video } from './entities/video.entity';
 import { CreateVideoInput } from './dto/create-video.input';
 import { UpdateVideoInput } from './dto/update-video.input';
-import { User } from './entities/user.entity';
 
 @Resolver(() => Video)
 export class VideosResolver {
   constructor(private readonly videosService: VideosService) { }
 
   @Mutation(() => Video)
-  createVideo(@Args('createVideoInput') createVideoInput: CreateVideoInput) {
-    return this.videosService.create(createVideoInput);
+  createVideo(@Args('input') input: CreateVideoInput) {
+    return this.videosService.create(input);
   }
 
   @Query(() => [Video], { name: 'videos' })
@@ -25,17 +24,12 @@ export class VideosResolver {
   }
 
   @Mutation(() => Video)
-  updateVideo(@Args('updateVideoInput') updateVideoInput: UpdateVideoInput) {
-    return this.videosService.update(updateVideoInput.id, updateVideoInput);
+  updateVideo(@Args('input') input: UpdateVideoInput) {
+    return this.videosService.update(input.id, input);
   }
 
   @Mutation(() => Video)
   removeVideo(@Args('id') id: string) {
     return this.videosService.remove(id);
-  }
-
-  @ResolveField(() => User)
-  user(@Parent() video:  Video): any {
-    return { __typename: 'User', id: 1 };
   }
 }

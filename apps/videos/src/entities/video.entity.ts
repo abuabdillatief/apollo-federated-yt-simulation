@@ -1,17 +1,25 @@
-import { Directive, Field, Int, ObjectType } from "@nestjs/graphql";
+import { Field, ID, Int, ObjectType } from "@nestjs/graphql";
+import { Column, Entity, ObjectIdColumn, PrimaryColumn } from "typeorm";
 
-@ObjectType()
-@Directive('@key(fields: "id")')
+@ObjectType('Video')
+@Entity()
 export class Video {
-    @Field(() => Int)
-    id: number
+    @ObjectIdColumn()
+    _id:string
 
+    @PrimaryColumn()
+    @Field(() => ID)
+    id: string
+
+    @Column()
     @Field(() => Int)
     duration: number
-
+    
+    @Column()
     @Field(() => Int)
     totalClick: number
-
+    
+    @Column()
     @Field(() => Int)
     totalPlayed: number
 }
