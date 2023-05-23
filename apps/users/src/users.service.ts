@@ -1,34 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserInput } from './dto/create-user.input';
-import { UpdateUserInput } from './dto/update-user.input';
-import { PrismaClient } from '@prisma/client';
-import { PrismaService } from './prisma/prisma.service';
+import { AbstractRepository } from '@app/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from './models/user.model';
 
 @Injectable()
-export class UsersService {
-  constructor(private prisma: PrismaService) { }
+export class UsersService extends AbstractRepository<User> {
+  protected readonly logger = new Logger(User.name)
 
-  create() {
-    return this.prisma.user.create({
-      data: {
-        currentVideoId: 1
-      }
-    })
-  }
-
-  findAll() {
-    return this.prisma.user.findMany()
-  }
-
-  findOne(id: number) {
-    return this.prisma.user.findUnique({ where: { id } })
-  }
-
-  update(id: number, updateUserInput: UpdateUserInput) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  constructor(
+    @InjectModel(User.name) userModel: Model<User>,
+  ) {
+    super(userModel)
   }
 }

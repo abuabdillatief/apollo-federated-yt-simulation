@@ -1,46 +1,44 @@
-import { Args, Int, Mutation, Parent, Query, ResolveField, ResolveReference, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UpdateUserInput } from './dto/update-user.input';
-import { User } from './entities/user.entity';
+import { User } from './models/user.model';
 import { UsersService } from './users.service';
-import { Video } from 'apps/videos/src/entities/video.entity';
+import { CreateUserInput } from './dto/create-user.input';
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(
+    private readonly usersService: UsersService,
+  ) {
+  }
 
   @Mutation(() => User)
-  createUser() {
-    return this.usersService.create();
+  createUser(@Args('createUserInput') input: CreateUserInput) {
+    return this.usersService.create({ name: input.name, createdAt: new Date() });
   }
 
   @Query(() => [User], { name: 'users' })
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.find({});
   }
 
   @Query(() => User, { name: 'user' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.usersService.findOne(id);
+  findOne(@Args('id') id: string) {
+    return this.usersService.findOne({ _id: id });
   }
 
   @Mutation(() => User)
   updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.usersService.update(updateUserInput.id, updateUserInput);
+    return this.usersService.findOneAndUpdate({ _id: updateUserInput.id }, {})
   }
 
-  @Mutation(() => User)
-  removeUser(@Args('id', { type: () => Int }) id: number) {
-    return this.usersService.remove(id);
-  }
+  // @Mutation(() => User)
+  // removeUser(@Args('id', { type: () => Int }) id: number) {
+  //   return this.usersService
+  // }
 
 
-  @ResolveReference()
-  resolveReference(reference: { __typename: number, id: number }) {
-    return this.usersService.findOne(reference.id)
-  }
-
-  @ResolveField(() => Video)
-  video(@Parent() user: User): any {
-    return { __typename: 'Video', id: user.currentVideoId }
-  }
+  // @ResolveReference()
+  // resolveReference(reference: { __typename: string; id: string }) {
+  //   return this.usersService.findOne(reference.id);
+  // }
 }

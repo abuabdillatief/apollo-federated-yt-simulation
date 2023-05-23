@@ -1,10 +1,13 @@
-import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UsersResolver } from './users.resolver';
-import { PrismaModule } from './prisma/prisma.module';
-import { GraphQLModule } from '@nestjs/graphql';
+import { DatabaseModule } from '@app/common';
+import { RmqModule } from '@app/common/rmq/rmq.module';
 import { ApolloFederationDriver, ApolloFederationDriverConfig } from '@nestjs/apollo';
-import { VideosModule } from 'apps/videos/src/videos.module';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
+import * as Joi from 'joi';
+import { User, UserSchema } from './models/user.model';
+import { UsersResolver } from './users.resolver';
+import { UsersService } from './users.service';
 
 @Module({
   imports: [
@@ -16,8 +19,18 @@ import { VideosModule } from 'apps/videos/src/videos.module';
         }
       }
     ),
-    VideosModule,
-    PrismaModule],
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        RABBIT_MQ_URI: Joi.string().required(),
+        RABBIT_MQ_USERS_QUEUE: Joi.string().required(),
+      }),
+      envFilePath: './apps/users/.env',
+    }),
+    RmqModule,
+    DatabaseModule,
+    DatabaseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+  ],
   providers: [UsersResolver, UsersService],
 })
 export class UsersModule { }
