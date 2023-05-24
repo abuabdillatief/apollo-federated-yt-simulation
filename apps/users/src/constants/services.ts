@@ -1,0 +1,1 @@
+export const VIDEO_SERVICE = "VIDEO"

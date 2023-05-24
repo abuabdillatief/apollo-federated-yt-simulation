@@ -1,22 +1,23 @@
 import { AbstractDocument } from '@app/common';
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Log } from './logs.model';
+import { Column, Entity, ObjectIdColumn, PrimaryColumn } from 'typeorm';
 
 @ObjectType()
-@Schema({versionKey:false})
+@Entity()
 export class User extends AbstractDocument {
+  @PrimaryColumn()
+  @Field(() => ID)
+  id: string
+  
   @Field()
-  @Prop()
+  @Column()
   name: string
   
   @Field()
-  @Prop()
+  @Column()
   createdAt: Date
 
-  @Field()
-  @Prop()
-  historyLogs?: Log[]
 }
 
 

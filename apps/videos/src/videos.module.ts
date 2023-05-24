@@ -8,7 +8,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Video } from './entities/video.entity';
 import { VideosResolver } from './videos.resolver';
 import { VideosService } from './videos.service';
-
+import { RmqModule } from '@app/common';
+import { USER_SERVICE } from './constants/services';
+import { ConfigModule } from '@nestjs/config';
+import * as Joi from 'joi'
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -25,19 +28,17 @@ import { VideosService } from './videos.service';
         federation: 2
       }
     }),
-    // RmqModule.register({
-    //   name: USER_SERVICE
-    // }),
-    // ConfigModule.forRoot({
-    //   isGlobal: true,
-    //   validationSchema: Joi.object({
-    //     MONGODB_URI: Joi.string().required(),
-    //     PORT: Joi.number().required()
-    //   }),
-    //   envFilePath: './apps/videos/.env',
-    // }),
-
+    RmqModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        MONGODB_URI: Joi.string().required(),
+        PORT: Joi.number().required()
+      }),
+      envFilePath: './apps/videos/.env',
+    }),
   ],
+  controllers:[VideosResolver],
   providers: [VideosResolver, VideosService],
 })
 export class VideosModule { }
