@@ -1,11 +1,12 @@
 import { SIMULATE_USER, USER_CREATED } from '@app/common/constants/events';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RmqContext } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { VideoClient } from './clients/video.client';
 import { SIMULATION_SERVICE, VIDEO_SERVICE } from './constants/services';
 import { User } from './models/user.model';
 import { UsersRepository } from './users.repository';
+import { RmqMessageValue } from '@app/common/rmq/rmq.message';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +20,9 @@ export class UsersService {
   async create(input: Omit<User, "_id">) {
     try {
       const user = await this.usersRespository.create(input)
-      this.simulationClient.emit(SIMULATE_USER, user)
+      this.simulationClient.emit<string, RmqMessageValue<User>>(SIMULATE_USER, new RmqMessageValue<User>({
+        value: user,
+      }))
       return user
     } catch (err) {
       throw err
