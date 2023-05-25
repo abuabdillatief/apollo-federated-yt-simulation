@@ -24,6 +24,9 @@ export class RmqService {
     ack(context: RmqContext) {
         const channel = context.getChannelRef()
         const originalMessage = context.getMessage()
-        channel.ack(originalMessage)
+        console.log(originalMessage, "<- original message")
+        if (originalMessage) {
+            channel.ack(originalMessage)
+        }
     }
 }
