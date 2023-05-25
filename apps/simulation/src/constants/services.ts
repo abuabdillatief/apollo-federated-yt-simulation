@@ -1,0 +1,3 @@
+export const VIDEO_SERVICE = "VIDEOS"
+export const SIMULATION_SERVICE = "SIMULATION"
+export const HISTORY_SERVICE = "HISTORY"

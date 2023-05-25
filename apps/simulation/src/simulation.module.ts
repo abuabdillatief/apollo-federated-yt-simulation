@@ -2,10 +2,9 @@ import { RmqModule } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { HISTORY_SERVICE, VIDEO_SERVICE } from './constants/services';
 import { SimulationController } from './simulation.controller';
 import { SimulationService } from './simulation.service';
-import { ApolloFederationDriver, ApolloFederationDriverConfig } from '@nestjs/apollo';
-import { GraphQLModule } from '@nestjs/graphql';
 
 @Module({
   imports: [
@@ -17,11 +16,11 @@ import { GraphQLModule } from '@nestjs/graphql';
       }),
       envFilePath:'./apps/simulation/.env'
     }),
-    GraphQLModule.forRoot<ApolloFederationDriverConfig>({
-      driver: ApolloFederationDriver,
-      autoSchemaFile: {
-        federation: 2
-      }
+    RmqModule.register({
+      name: VIDEO_SERVICE,
+    }),
+    RmqModule.register({
+      name: HISTORY_SERVICE,
     }),
     RmqModule],
   controllers: [SimulationController],
