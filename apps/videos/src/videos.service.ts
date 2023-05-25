@@ -6,6 +6,7 @@ import { CreateVideoInput } from './dto/create-video.input';
 import { UpdateVideoInput } from './dto/update-video.input';
 import { Video } from './entities/video.entity';
 import * as randomTitle from 'random-title'
+import { SimulationService } from 'apps/simulation/src/simulation.service';
 
 @Injectable()
 export class VideosService {
@@ -13,13 +14,18 @@ export class VideosService {
     @InjectRepository(Video) private videoRepository: MongoRepository<Video>
   ) { }
 
-  create(input: CreateVideoInput): Promise<Video> {
+  static generateRandomDuration(max?: number): number {
+    return Math.floor(Math.random() * max ?? 60) + 1;
+  }
+
+
+  create(): Promise<Video> {
     const video = this.videoRepository.create({
       id: uuid(),
       title: randomTitle(),
-      totalClick: input.totalClick,
-      totalPlayed: input.totalClick,
-      duration: input.duration
+      totalClick: 0,
+      totalPlayed: 0,
+      duration: VideosService.generateRandomDuration(15)
     })
     return this.videoRepository.save(video)
   }

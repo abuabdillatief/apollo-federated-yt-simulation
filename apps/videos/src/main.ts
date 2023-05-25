@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(VideosModule);
   const rmqService = app.get<RmqService>(RmqService)
   app.useGlobalPipes(new ValidationPipe())
-  app.connectMicroservice(rmqService.getOptions('VIDEOS'));
+  app.connectMicroservice(rmqService.getOptions('VIDEOS', true));
   await app.startAllMicroservices()
   await app.listen(3002);
 }

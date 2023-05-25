@@ -10,14 +10,13 @@ import { Controller } from '@nestjs/common';
 @Resolver(() => Video)
 export class VideosResolver {
   constructor(private readonly videosService: VideosService) { }
-
   @EventPattern(USER_CREATED)
-  async handleUserCreated(@Payload() data:any) {
+  async handleUserCreated(@Payload() data: any) {
     console.log(data, "<- here in videos")
   }
   @Mutation(() => Video)
-  createVideo(@Args('input') input: CreateVideoInput) {
-    return this.videosService.create(input);
+  createVideo() {
+    return this.videosService.create();
   }
 
   @Query(() => [Video], { name: 'videos' })
