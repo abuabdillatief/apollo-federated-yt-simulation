@@ -29,9 +29,6 @@ import { UsersService } from './users.service';
       envFilePath: './apps/users/.env',
     }),
     RmqModule.register({
-      name: VIDEO_SERVICE,
-    }),
-    RmqModule.register({
       name: SIMULATION_SERVICE,
     }),
     DatabaseModule,

@@ -12,22 +12,14 @@ export class UsersService {
   protected readonly logger = new Logger(User.name)
   constructor(
     private readonly usersRespository: UsersRepository,
-    @Inject(VIDEO_SERVICE) private videoClient: ClientProxy,
     @Inject(SIMULATION_SERVICE) private simulationClient: ClientProxy,
   ) { }
 
 
   async create(input: Omit<User, "_id">) {
     try {
-      console.log(input)
       const user = await this.usersRespository.create(input)
-      await lastValueFrom(
-        this.simulationClient.emit(SIMULATE_USER, {
-          input
-        })
-      )
-
-      console.log(user)
+      this.simulationClient.emit(SIMULATE_USER, user)
       return user
     } catch (err) {
       throw err
