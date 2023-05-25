@@ -41,9 +41,12 @@
     "class-validator": "^0.14.0",
     "graphql": "^16.6.0",
     "graphql-mongo": "^1.0.1",
+    "graphql-request": "^6.1.0",
     "joi": "^17.9.2",
     "mongodb": "^5.5.0",
     "mongoose": "^7.2.0",
+    "random-name": "^0.1.2",
+    "random-title": "^1.0.4",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
     "typeorm": "^0.3.16"

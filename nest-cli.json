@@ -45,6 +45,24 @@
       "compilerOptions": {
         "tsConfigPath": "libs/common/tsconfig.lib.json"
       }
+    },
+    "simulation": {
+      "type": "application",
+      "root": "apps/simulation",
+      "entryFile": "main",
+      "sourceRoot": "apps/simulation/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/simulation/tsconfig.app.json"
+      }
+    },
+    "history": {
+      "type": "application",
+      "root": "apps/history",
+      "entryFile": "main",
+      "sourceRoot": "apps/history/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/history/tsconfig.app.json"
+      }
     }
   }
 }
