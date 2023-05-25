@@ -4,11 +4,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import * as Joi from 'joi';
+import { SIMULATION_SERVICE, VIDEO_SERVICE } from './constants/services';
 import { User, UserSchema } from './models/user.model';
+import { UsersRepository } from './users.repository';
 import { UsersResolver } from './users.resolver';
 import { UsersService } from './users.service';
-import { VIDEO_SERVICE } from './constants/services';
-import { UsersRepository } from './users.repository';
 
 @Module({
   imports: [
@@ -24,11 +24,15 @@ import { UsersRepository } from './users.repository';
       isGlobal: true,
       validationSchema: Joi.object({
         MONGODB_URI: Joi.string().required(),
+        PORT: Joi.string().required(),
       }),
       envFilePath: './apps/users/.env',
     }),
     RmqModule.register({
       name: VIDEO_SERVICE,
+    }),
+    RmqModule.register({
+      name: SIMULATION_SERVICE,
     }),
     DatabaseModule,
     DatabaseModule.forFeature([{ name: User.name, schema: UserSchema }]),

@@ -4,18 +4,18 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Column, Entity, ObjectIdColumn, PrimaryColumn } from 'typeorm';
 
 @ObjectType()
-@Entity()
+@Schema()
 export class User extends AbstractDocument {
-  @PrimaryColumn()
+  @Prop()
   @Field(() => ID)
   id: string
   
+  @Prop()
   @Field()
-  @Column()
   name: string
   
+  @Prop()
   @Field()
-  @Column()
   createdAt: Date
 
 }

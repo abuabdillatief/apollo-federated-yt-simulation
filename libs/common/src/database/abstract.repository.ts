@@ -8,7 +8,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
 
     constructor(
         protected readonly model: Model<TDocument>,
-        // private readonly connection: Connection
+        private readonly connection: Connection
     ) { }
 
 
@@ -21,7 +21,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
             _id: new Types.ObjectId
         })
 
-        return (await createdDoc.save(options)).toJSON() as TDocument
+        return (await createdDoc.save(options)).toJSON() as unknown as TDocument
     }
 
     async findOne(filterQuery: FilterQuery<TDocument>): Promise<TDocument> {
@@ -58,10 +58,10 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
         return this.model.find(filterQuery, {}, {lean:true})
     }
 
-    // async startTransaction() {
-    //     const session =  await this.connection.startSession()
-    //     session.startTransaction()
-    //     return session
-    // }
+    async startTransaction() {
+        const session =  await this.connection.startSession()
+        session.startTransaction()
+        return session
+    }
 
 }

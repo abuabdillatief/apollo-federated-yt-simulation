@@ -1,17 +1,16 @@
+import { RmqModule } from '@app/common';
 import {
   ApolloFederationDriver,
   ApolloFederationDriverConfig,
 } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import * as Joi from 'joi';
 import { Video } from './entities/video.entity';
 import { VideosResolver } from './videos.resolver';
 import { VideosService } from './videos.service';
-import { RmqModule } from '@app/common';
-import { USER_SERVICE } from './constants/services';
-import { ConfigModule } from '@nestjs/config';
-import * as Joi from 'joi'
 @Module({
   imports: [
     TypeOrmModule.forRoot({

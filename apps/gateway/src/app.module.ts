@@ -16,12 +16,16 @@ import { authContext } from './auth.context';
         supergraphSdl: new IntrospectAndCompose({
           subgraphs: [
             {
-              name: 'users',
+              name: 'userss',
               url: 'http://127.0.0.1:3001/graphql'
             },
             {
               name: 'videos',
               url: 'http://127.0.0.1:3002/graphql'
+            },
+            {
+              name: 'simulation',
+              url: 'http://127.0.0.1:3003/graphql'
             },
           ]
         }),

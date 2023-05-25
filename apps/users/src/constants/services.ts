@@ -1,1 +1,2 @@
-export const VIDEO_SERVICE = "VIDEO"
+export const VIDEO_SERVICE = "VIDEOS"
+export const SIMULATION_SERVICE = "SIMULATION"
