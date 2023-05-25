@@ -5,7 +5,7 @@ import { RmqService } from '@app/common/rmq/rmq.service';
 async function bootstrap() {
   const app = await NestFactory.create(SimulationModule);
   const rmqService = app.get<RmqService>(RmqService)
-  app.connectMicroservice(rmqService.getOptions("SIMULATION"))
+  app.connectMicroservice(rmqService.getOptions("SIMULATION", true))
   await app.startAllMicroservices();
 }
 bootstrap();
