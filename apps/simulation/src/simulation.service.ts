@@ -8,6 +8,7 @@ import { Video } from 'apps/videos/src/entities/video.entity';
 import { RmqMessageValue } from '@app/common/rmq/rmq.message';
 import { STORE_HISTORY } from '@app/common/constants/events';
 import { HistoryInput } from 'apps/history/src/histoy.model';
+import { AuthService } from '@app/common/auth/auth.service';
 
 
 @Injectable()
@@ -15,6 +16,7 @@ export class SimulationService {
   constructor(
     @Inject(VIDEO_SERVICE) private videoClient: ClientProxy,
     @Inject(HISTORY_SERVICE) private historyClient: ClientProxy,
+    private readonly authService: AuthService
   ) { }
 
   static generateRandomDuration(max: number): number {
@@ -27,7 +29,7 @@ export class SimulationService {
     return activities[randomIndex];
   }
 
-  static async getVideos(): Promise<Video[]> {
+  static async getVideos(token:string): Promise<Video[]> {
     const url = 'http://localhost:3000/graphql'; // Replace with the URL of the 3rd party API
     const query = `
       query {
@@ -42,7 +44,7 @@ export class SimulationService {
     `
 
     const headers = {
-      'Authorization': '123',
+      'Authorization': token,
     };
 
     const config: AxiosRequestConfig = {
@@ -57,14 +59,12 @@ export class SimulationService {
     return response.data.data.videos as Video[]
   }
 
-  async simulateUser(data: User) {
+  async simulateUser(data: User, token: string) {
+    console.log(token,"token in simulation")
     let duration = SimulationService.generateRandomDuration(15);
     const startTime = Date.now();
     const endTime = startTime + duration * 1000;
 
-    console.log("date now", Date.now())
-    console.log("start time", startTime)
-    console.log("end time", endTime)
     while (Date.now() < endTime) {
       let activity = SimulationService.getRandomActivity()
       let act = {
@@ -83,13 +83,13 @@ export class SimulationService {
           act.duration = 500
           break;
         case Activity.PLAY:
-          let videos = await SimulationService.getVideos()
+          let videos = await SimulationService.getVideos(token)
           let chosenVideo = videos[Math.floor(Math.random() * videos.length)]
           act.duration = SimulationService.generateRandomDuration(duration)
           act.videoId = chosenVideo.id
           break;
       }
-      this.historyClient.emit<string, RmqMessageValue<HistoryInput>>(STORE_HISTORY, new RmqMessageValue<HistoryInput>({ value: act }))
+      this.historyClient.emit<string, RmqMessageValue<HistoryInput>>(STORE_HISTORY, new RmqMessageValue<HistoryInput>({ value: act, token: token }))
       await new Promise(r => setTimeout(r, act.duration));
     }
     console.log("done")

@@ -14,7 +14,7 @@ export class SimulationController {
   ) { }
 
   @MessagePattern(SIMULATE_USER)
-  async simulateUser(@Payload() data: RmqMessageValue<User>, @Ctx() context: RmqContext) {
-     await this.simulationService.simulateUser(data.value)
+  async simulateUser(@Payload() data: RmqMessageValue<User>) {
+     await this.simulationService.simulateUser(data.value, data.token)
   }
 }
