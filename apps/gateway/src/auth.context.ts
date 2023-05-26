@@ -1,13 +1,15 @@
-import { UnauthorizedException } from "@nestjs/common"
+import { ConfigService } from "@nestjs/config"
+import { IncomingMessage } from "http"
+const { verify } = require('jsonwebtoken')
 
-export const authContext = ({ req }) => {
-    if (req.headers?.authorization) {
 
-        return {
-            user: {
-                id:'123'
-            }
-        }
+export const authContext = async (req: IncomingMessage, configService: ConfigService) => {
+    let res = {
+        "authorization": req.headers.authorization 
     }
-    throw new UnauthorizedException()
+    if (req.headers.authorization) {
+        const decoded = verify(req.headers.authorization, configService.get('SECRET'))
+        res["user"] = decoded
+    }
+    return res
 }

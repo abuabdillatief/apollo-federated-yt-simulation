@@ -1,8 +1,9 @@
+import { AuthService } from '@app/common/auth/auth.service';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
-  }
+  constructor(
+    private readonly authService: AuthService
+  ) { }
 }
