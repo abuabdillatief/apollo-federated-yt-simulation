@@ -5,6 +5,7 @@ import * as Joi from 'joi';
 import { HISTORY_SERVICE, VIDEO_SERVICE } from './constants/services';
 import { SimulationController } from './simulation.controller';
 import { SimulationService } from './simulation.service';
+import { AuthModule } from '@app/common/auth/auth.module';
 
 @Module({
   imports: [
@@ -22,7 +23,9 @@ import { SimulationService } from './simulation.service';
     RmqModule.register({
       name: HISTORY_SERVICE,
     }),
-    RmqModule],
+    RmqModule,
+    AuthModule.register()
+  ],
   controllers: [SimulationController],
   providers: [SimulationService],
 })
