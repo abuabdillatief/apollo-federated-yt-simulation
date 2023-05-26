@@ -10,6 +10,7 @@ import { UsersRepository } from './users.repository';
 import { UsersResolver } from './users.resolver';
 import { UsersService } from './users.service';
 import { Activity } from 'apps/simulation/src/models/actionDetail.model';
+import { AuthModule } from '@app/common/auth/auth.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { Activity } from 'apps/simulation/src/models/actionDetail.model';
     }),
     DatabaseModule,
     DatabaseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    AuthModule.register()
   ],
   providers: [UsersResolver, UsersService, UsersRepository],
 })

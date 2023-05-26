@@ -1,12 +1,13 @@
-import { SIMULATE_USER, USER_CREATED } from '@app/common/constants/events';
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy, RmqContext } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
-import { VideoClient } from './clients/video.client';
-import { SIMULATION_SERVICE, VIDEO_SERVICE } from './constants/services';
-import { User } from './models/user.model';
-import { UsersRepository } from './users.repository';
+import { AuthHeader } from '@app/common/auth/auth.header';
+import { AuthService } from '@app/common/auth/auth.service';
+import { SIMULATE_USER } from '@app/common/constants/events';
 import { RmqMessageValue } from '@app/common/rmq/rmq.message';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { VideoClient } from './clients/video.client';
+import { SIMULATION_SERVICE } from './constants/services';
+import { CreateUserResponse, User } from './models/user.model';
+import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
@@ -14,16 +15,23 @@ export class UsersService {
   constructor(
     private readonly usersRespository: UsersRepository,
     @Inject(SIMULATION_SERVICE) private simulationClient: ClientProxy,
+    private readonly authService: AuthService
   ) { }
 
 
-  async create(input: Omit<User, "_id">) {
+  async create(input: Omit<User, "_id">, requestHeader: AuthHeader): Promise<CreateUserResponse> {
+    console.log(requestHeader, "<- req headers in user service")
     try {
       const user = await this.usersRespository.create(input)
-      this.simulationClient.emit<string, RmqMessageValue<User>>(SIMULATE_USER, new RmqMessageValue<User>({
+      const msg = new RmqMessageValue<User>({
         value: user,
-      }))
-      return user
+        token: requestHeader.authorization
+      })
+
+      console.log(msg, "<- message in user")
+      this.simulationClient.emit<string, RmqMessageValue<User>>(SIMULATE_USER,msg)
+      const token = await this.authService.generateToken(user)
+      return { token, user }
     } catch (err) {
       throw err
     }

@@ -1,7 +1,9 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { AuthHeader } from '@app/common/auth/auth.header';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { IncomingMessage } from 'http';
 import * as random from 'random-name';
 import { v4 as uuid } from 'uuid';
-import { User } from './models/user.model';
+import { CreateUserResponse, User } from './models/user.model';
 import { UsersService } from './users.service';
 
 @Resolver(() => User)
@@ -20,13 +22,14 @@ export class UsersResolver {
     return this.usersService.findOne(id);
   }
 
-  @Mutation(() => User)
-  createUser() {
+  @Mutation(() => CreateUserResponse)
+  createUser(@Context() context) {
+    let req = context.req as IncomingMessage & { headers: AuthHeader };
     return this.usersService.create({
       id: uuid(),
       name: random.first() + " " + random.middle(),
       createdAt: new Date()
-    });
+    }, req.headers);
   }
 
   // @Mutation(() => User)
