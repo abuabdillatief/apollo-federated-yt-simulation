@@ -7,6 +7,7 @@ import { UpdateVideoInput } from './dto/update-video.input';
 import { Video } from './entities/video.entity';
 import * as randomTitle from 'random-title'
 import { SimulationService } from 'apps/simulation/src/simulation.service';
+import { GetVideosInput } from './dto/get-videos.input';
 
 @Injectable()
 export class VideosService {
@@ -23,25 +24,32 @@ export class VideosService {
     const video = this.videoRepository.create({
       id: uuid(),
       title: randomTitle(),
-      totalClick: 0,
+      totalPaused: 0,
       totalPlayed: 0,
+      totalSkip: 0,
       duration: VideosService.generateRandomDuration(15)
     })
     return this.videoRepository.save(video)
   }
 
-  findAll(): Promise<Video[]> {
-    return this.videoRepository.find()
+  findAll(input: GetVideosInput): Promise<Video[]> {
+    return this.videoRepository.find({
+      where: {},
+      order:{
+        [input.sortBy]:'DESC'
+      }
+    })
   }
 
   findOne(id: string) {
     return this.videoRepository.findOne({ where: { id: id } })
   }
 
-  async update(id: string, { totalClick, totalPlayed }: UpdateVideoInput): Promise<Video> {
+  async update(id: string, { totalPaused, totalPlayed, totalSkip }: UpdateVideoInput): Promise<Video> {
     const video = await this.videoRepository.findOne({ where: { id } })
-    video.totalClick = totalClick
-    video.totalPlayed = totalPlayed
+    video.totalPaused += totalPaused ?? 0
+    video.totalPlayed += totalPlayed ?? 0
+    video.totalSkip += totalSkip ?? 0
     return this.videoRepository.save(video)
   }
 

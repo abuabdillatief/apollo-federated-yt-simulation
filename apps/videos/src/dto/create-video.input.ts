@@ -10,4 +10,7 @@ export class CreateVideoInput {
 
   @Field(() => Int)
   totalPlayed: number
+
+  @Field(() => Int)
+  totalSkip: number
 }

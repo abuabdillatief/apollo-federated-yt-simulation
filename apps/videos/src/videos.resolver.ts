@@ -1,33 +1,37 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent, ResolveReference } from '@nestjs/graphql';
-import { VideosService } from './videos.service';
-import { Video } from './entities/video.entity';
-import { CreateVideoInput } from './dto/create-video.input';
-import { UpdateVideoInput } from './dto/update-video.input';
-import { EventPattern, Payload } from '@nestjs/microservices';
-import { SIMULATE_USER, USER_CREATED } from '@app/common/constants/events';
+import { UPDATE_VIDEO } from '@app/common/constants/events';
+import { RmqMessageValue } from '@app/common/rmq/rmq.message';
 import { Controller } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { EventPattern, Payload } from '@nestjs/microservices';
+import { GetVideosInput } from './dto/get-videos.input';
+import { UpdateVideoInput } from './dto/update-video.input';
+import { Video } from './entities/video.entity';
+import { VideosService } from './videos.service';
 @Controller()
 @Resolver(() => Video)
 export class VideosResolver {
   constructor(private readonly videosService: VideosService) { }
-  @EventPattern(USER_CREATED)
-  async handleUserCreated(@Payload() data: any) {
+  @EventPattern(UPDATE_VIDEO)
+  async handleUpdateVideo(@Payload() data: RmqMessageValue<UpdateVideoInput>) {
     console.log(data, "<- here in videos")
+    return this.videosService.update(data.value.id, data.value)
   }
+
   @Mutation(() => Video)
   createVideo() {
     return this.videosService.create();
   }
 
   @Query(() => [Video], { name: 'videos' })
-  findAll() {
-    return this.videosService.findAll();
+  videos(@Args('input') input:GetVideosInput) {
+    return this.videosService.findAll(input);
   }
 
   @Query(() => Video, { name: 'video' })
   findOne(@Args('id') id: string) {
     return this.videosService.findOne(id);
   }
+
 
   @Mutation(() => Video)
   updateVideo(@Args('input') input: UpdateVideoInput) {

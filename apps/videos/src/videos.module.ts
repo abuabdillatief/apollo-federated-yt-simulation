@@ -1,11 +1,11 @@
-import { RmqModule } from '@app/common';
+import { RmqModule, SortBy } from '@app/common';
 import {
   ApolloFederationDriver,
   ApolloFederationDriverConfig,
 } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { GraphQLModule } from '@nestjs/graphql';
+import { GraphQLModule, registerEnumType } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 import { Video } from './entities/video.entity';
@@ -40,4 +40,11 @@ import { VideosService } from './videos.service';
   controllers:[VideosResolver],
   providers: [VideosResolver, VideosService],
 })
-export class VideosModule { }
+export class VideosModule { 
+  constructor(){
+    registerEnumType(SortBy, {
+      name: 'SortBy',
+      description: 'Sort Types',
+    });
+  }
+}

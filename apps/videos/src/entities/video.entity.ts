@@ -20,10 +20,14 @@ export class Video {
     duration: number
 
     @Column()
-    @Field(() => Int)
-    totalClick: number
+    @Field(() => Int, {defaultValue:0})
+    totalPaused: number
 
     @Column()
-    @Field(() => Int)
+    @Field(() => Int, {defaultValue:0})
     totalPlayed: number
+  
+    @Column({default:0})
+    @Field(() => Int, {defaultValue:0})
+    totalSkip: number
 }
