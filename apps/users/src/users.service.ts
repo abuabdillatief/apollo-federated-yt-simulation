@@ -20,17 +20,14 @@ export class UsersService {
 
 
   async create(input: Omit<User, "_id">, requestHeader: AuthHeader): Promise<CreateUserResponse> {
-    console.log(requestHeader, "<- req headers in user service")
     try {
       const user = await this.usersRespository.create(input)
+      const token = await this.authService.generateToken(user)
       const msg = new RmqMessageValue<User>({
         value: user,
-        token: requestHeader.authorization
+        token: token
       })
-
-      console.log(msg, "<- message in user")
-      this.simulationClient.emit<string, RmqMessageValue<User>>(SIMULATE_USER,msg)
-      const token = await this.authService.generateToken(user)
+      this.simulationClient.emit<string, RmqMessageValue<User>>(SIMULATE_USER, msg)
       return { token, user }
     } catch (err) {
       throw err

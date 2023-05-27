@@ -1,8 +1,6 @@
-import { AbstractDocument } from '@app/common';
+import { AbstractDocument, Activity } from '@app/common';
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { registerEnumType } from "@nestjs/graphql";
-import { Activity } from 'apps/simulation/src/models/actionDetail.model';
 
 
 @ObjectType()

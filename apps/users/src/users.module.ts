@@ -1,4 +1,4 @@
-import { DatabaseModule, RmqModule } from '@app/common';
+import { Activity, DatabaseModule, RmqModule } from '@app/common';
 import { ApolloFederationDriver, ApolloFederationDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -9,7 +9,6 @@ import {  User, UserSchema } from './models/user.model';
 import { UsersRepository } from './users.repository';
 import { UsersResolver } from './users.resolver';
 import { UsersService } from './users.service';
-import { Activity } from 'apps/simulation/src/models/actionDetail.model';
 import { AuthModule } from '@app/common/auth/auth.module';
 
 @Module({
