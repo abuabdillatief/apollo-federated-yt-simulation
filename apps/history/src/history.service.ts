@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { History } from './histoy.model';
+import { History } from './history.model';
 import { HistoryRepository } from './history.repository';
-import { RmqMessageValue } from '@app/common/rmq/rmq.message';
-import { User } from 'apps/users/src/models/user.model';
 
 @Injectable()
 export class HistoryService {
@@ -10,7 +8,7 @@ export class HistoryService {
     private readonly historyRepository: HistoryRepository
   ) { }
 
-  async store(history: History) {
+  async store(history: History): Promise<History> {
     try {
       const res: History = await this.historyRepository.create(history)
       return res
