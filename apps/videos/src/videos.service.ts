@@ -35,8 +35,8 @@ export class VideosService {
   findAll(input: GetVideosInput): Promise<Video[]> {
     return this.videoRepository.find({
       where: {},
-      order:{
-        [input.sortBy]:'DESC'
+      order: {
+        [input.sortBy]: 'DESC'
       }
     })
   }
@@ -46,7 +46,7 @@ export class VideosService {
   }
 
   async update(id: string, { totalPaused, totalPlayed, totalSkip }: UpdateVideoInput): Promise<Video> {
-    const video = await this.videoRepository.findOne({ where: { id } })
+    const video: Video = await this.videoRepository.findOne({ where: { id } })
     video.totalPaused += totalPaused ?? 0
     video.totalPlayed += totalPlayed ?? 0
     video.totalSkip += totalSkip ?? 0

@@ -11,9 +11,9 @@ import { VideosService } from './videos.service';
 @Resolver(() => Video)
 export class VideosResolver {
   constructor(private readonly videosService: VideosService) { }
+  
   @EventPattern(UPDATE_VIDEO)
   async handleUpdateVideo(@Payload() data: RmqMessageValue<UpdateVideoInput>) {
-    console.log(data, "<- here in videos")
     return this.videosService.update(data.value.id, data.value)
   }
 
@@ -23,7 +23,7 @@ export class VideosResolver {
   }
 
   @Query(() => [Video], { name: 'videos' })
-  videos(@Args('input') input:GetVideosInput) {
+  videos(@Args('input') input: GetVideosInput) {
     return this.videosService.findAll(input);
   }
 
