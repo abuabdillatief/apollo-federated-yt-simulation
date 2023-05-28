@@ -11,37 +11,41 @@ import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
-  protected readonly logger = new Logger(User.name)
+  protected readonly logger = new Logger(User.name);
   constructor(
-    private readonly usersRespository: UsersRepository,
+    private readonly usersRepository: UsersRepository,
     @Inject(SIMULATION_SERVICE) private simulationClient: ClientProxy,
-    private readonly authService: AuthService
-  ) { }
+    private readonly authService: AuthService,
+  ) {}
 
-
-  async create(input: Omit<User, "_id">, requestHeader: AuthHeader): Promise<CreateUserResponse> {
+  async create(
+    input: Omit<User, '_id'>,
+    requestHeader: AuthHeader,
+  ): Promise<CreateUserResponse> {
     try {
-      const user = await this.usersRespository.create(input)
-      const token = await this.authService.generateToken(user)
+      const user = await this.usersRepository.create(input);
+      const token = await this.authService.generateToken(user);
       const msg = new RmqMessageValue<User>({
         value: user,
-        token: token
-      })
-      this.simulationClient.emit<string, RmqMessageValue<User>>(SIMULATE_USER, msg)
-      return { token, user }
+        token: token,
+      });
+      this.simulationClient.emit<string, RmqMessageValue<User>>(
+        SIMULATE_USER,
+        msg,
+      );
+      return { token, user };
     } catch (err) {
-      throw err
+      throw err;
     }
   }
 
   async find() {
-    return this.usersRespository.find({})
+    return this.usersRepository.find({});
   }
 
   async findOne(id: string) {
-    var res = await VideoClient.call(`
-    `)
-    return this.usersRespository.findOne({ id: id })
+    const res = await VideoClient.call(`
+    `);
+    return this.usersRepository.findOne({ id: id });
   }
-
 }
