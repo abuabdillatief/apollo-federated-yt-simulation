@@ -1,10 +1,10 @@
 import { Activity } from '@app/common';
 import { AuthService } from '@app/common/auth/auth.service';
-import { STORE_HISTORY,UPDATE_VIDEO } from '@app/common/constants/events';
+import { STORE_HISTORY, UPDATE_VIDEO } from '@app/common/constants/events';
 import { RmqMessageValue } from '@app/common/rmq/rmq.message';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { History } from 'apps/history/src/histoy.model';
+import { History } from 'apps/history/src/history.model';
 import { User } from 'apps/users/src/models/user.model';
 import { UpdateVideoInput } from 'apps/videos/src/dto/update-video.input';
 import { Video } from 'apps/videos/src/entities/video.entity';
@@ -17,7 +17,6 @@ export class SimulationService {
   constructor(
     @Inject(VIDEO_SERVICE) private videoClient: ClientProxy,
     @Inject(HISTORY_SERVICE) private historyClient: ClientProxy,
-    private readonly authService: AuthService
   ) { }
 
   static generateRandomDuration(max: number): number {
@@ -33,16 +32,16 @@ export class SimulationService {
   static async getVideos(token: string): Promise<Video[]> {
     const url = 'http://localhost:3000/graphql'; // Replace with the URL of the 3rd party API
     const query = `
-      query {
-        videos {
-          id,
-          title, 
-          totalPaused, 
-          totalPlayed,
-          totalSkip,
-          duration
-        }
-      } 
+    query {
+      videos (input:{sortBy:TotalPaused}){
+        id
+        title
+        totalPlayed
+        totalPaused
+        totalSkip
+        duration
+      }
+    }
     `
 
     const headers = {
@@ -58,7 +57,6 @@ export class SimulationService {
       },
     };
     const response = await axios(config);
-    console.log(response.data, "<- response")
     return response.data.data.videos as Video[]
   }
 
@@ -70,11 +68,11 @@ export class SimulationService {
     const videos = await SimulationService.getVideos(token)
 
     let acts: History[] = [];
-    let lastAct = new History()
+    let lastAct: History = new History()
 
     while (Date.now() < endTime) {
-      let activity = SimulationService.getRandomActivity()
-      let act = {
+      let activity: Activity = SimulationService.getRandomActivity()
+      let history: History = {
         userId: data.id,
         activity: activity,
         videoId: "",
@@ -90,16 +88,16 @@ export class SimulationService {
           if (acts.length > 0 && acts[acts.length - 1].activity === Activity.SKIP) {
             continue
           }
-          act.videoId = lastAct.videoId
-          act.duration = 500
+          history.videoId = lastAct.videoId
+          history.duration = 500
           break;
         case Activity.PAUSE:
           video.totalPaused = 1
           if (acts.length > 0 && acts[acts.length - 1].activity !== Activity.PLAY) {
             continue
           }
-          act.videoId = lastAct.videoId
-          act.duration = 500
+          history.videoId = lastAct.videoId
+          history.duration = 500
           break;
         case Activity.PLAY:
           video.totalPlayed = 1
@@ -107,17 +105,17 @@ export class SimulationService {
             continue
           }
           let chosenVideo = videos[Math.floor(Math.random() * videos.length)]
-          act.duration = SimulationService.generateRandomDuration(duration)
-          act.videoId = chosenVideo.id
+          history.duration = SimulationService.generateRandomDuration(duration)
+          history.videoId = chosenVideo.id
           break;
       }
-      acts.push(act)
-      lastAct = act
+      acts.push(history)
+      lastAct = history
 
-      video.id = act.videoId
+      video.id = history.videoId
       this.videoClient.emit<string, RmqMessageValue<UpdateVideoInput>>(UPDATE_VIDEO, new RmqMessageValue<UpdateVideoInput>({ value: video }))
-      this.historyClient.emit<string, RmqMessageValue<History>>(STORE_HISTORY, new RmqMessageValue<History>({ value: act, token: token }))
-      await new Promise(r => setTimeout(r, act.duration));
+      this.historyClient.emit<string, RmqMessageValue<History>>(STORE_HISTORY, new RmqMessageValue<History>({ value: history, token: token }))
+      await new Promise(r => setTimeout(r, history.duration));
     }
   }
 }
