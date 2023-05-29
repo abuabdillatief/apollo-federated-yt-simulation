@@ -61,39 +61,59 @@ export class SimulationService {
   }
 
   async simulateUser(data: User, token: string) {
-    let duration = SimulationService.generateRandomDuration(15);
+    const duration = SimulationService.generateRandomDuration(15);
     const startTime = Date.now();
     const endTime = startTime + duration * 1000;
-
     const videos = await SimulationService.getVideos(token)
 
-    let acts: History[] = [];
     let lastAct: History = new History()
+    let activity: Activity = Activity.PLAY
+
+    // initiate first behavior
+    let history: History = {
+      userId: data.id,
+      activity: activity,
+      videoId: videos[Math.floor(Math.random() * videos.length)].id,
+      duration: SimulationService.generateRandomDuration(duration),
+      createdAt: Date.now()
+    }
+
+    let video: UpdateVideoInput = {
+      id: history.videoId,
+      totalPlayed: 1
+    }
+
+    await new Promise(r => setTimeout(r, history.duration));
+
+    this.videoClient.emit<string, RmqMessageValue<UpdateVideoInput>>(UPDATE_VIDEO, new RmqMessageValue<UpdateVideoInput>({ value: video }))
+    this.historyClient.emit<string, RmqMessageValue<History>>(STORE_HISTORY, new RmqMessageValue<History>({ value: history, token: token }))
+
+    lastAct = history
 
     while (Date.now() < endTime) {
-      let activity: Activity = SimulationService.getRandomActivity()
-      let history: History = {
+      activity = SimulationService.getRandomActivity()
+      history = {
         userId: data.id,
         activity: activity,
         videoId: "",
         duration: 0,
         createdAt: Date.now()
       }
-
-      let video = new UpdateVideoInput()
+      video = new UpdateVideoInput()
 
       switch (activity) {
         case Activity.SKIP:
           video.totalSkip = 1
-          if (acts.length > 0 && acts[acts.length - 1].activity === Activity.SKIP) {
+          if (lastAct.activity === Activity.SKIP) {
             continue
           }
+
           history.videoId = lastAct.videoId
           history.duration = 500
           break;
         case Activity.PAUSE:
           video.totalPaused = 1
-          if (acts.length > 0 && acts[acts.length - 1].activity !== Activity.PLAY) {
+          if (lastAct.activity !== Activity.PLAY) {
             continue
           }
           history.videoId = lastAct.videoId
@@ -101,7 +121,7 @@ export class SimulationService {
           break;
         case Activity.PLAY:
           video.totalPlayed = 1
-          if (acts.length > 0 && acts[acts.length - 1].activity === Activity.PLAY) {
+          if (lastAct.activity === Activity.PLAY) {
             continue
           }
           let chosenVideo = videos[Math.floor(Math.random() * videos.length)]
@@ -109,12 +129,12 @@ export class SimulationService {
           history.videoId = chosenVideo.id
           break;
       }
-      acts.push(history)
       lastAct = history
 
       video.id = history.videoId
       this.videoClient.emit<string, RmqMessageValue<UpdateVideoInput>>(UPDATE_VIDEO, new RmqMessageValue<UpdateVideoInput>({ value: video }))
       this.historyClient.emit<string, RmqMessageValue<History>>(STORE_HISTORY, new RmqMessageValue<History>({ value: history, token: token }))
+
       await new Promise(r => setTimeout(r, history.duration));
     }
   }
